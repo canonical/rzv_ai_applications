@@ -1,0 +1,300 @@
+name: rzv-ai-applications
+base: core24
+version: '1.0'
+summary: Renesas RZ/V AI Applications for RZ/V2H
+description: |
+  This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
+  The DRP-AI TVM runtime is staged from renesas-rz/rzv_drp-ai_tvm, v2.5.1.
+
+grade: devel
+confinement: devmode
+
+platforms:
+  arm64:
+    build-on: [amd64,arm64]
+    build-for: [arm64]
+
+plugs:
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
+
+package-repositories:
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main, universe]
+    suites: [noble, noble-updates, noble-backports]
+    key-id: F6ECB3762474EDA9D21B7022871920D1991BC93C
+    url: http://ports.ubuntu.com/ubuntu-ports
+
+  - type: apt
+    architectures: [$CRAFT_ARCH_BUILD_FOR]
+    formats: [deb, deb-src]
+    components: [main]
+    suites: [noble]
+    key-id: 1E72A68F43DA1C8E4BB7B59356451E45B00B4CB5
+    url: http://ppa.launchpad.net/ubuntu-on-renesas/public-ppa/ubuntu
+
+parts:
+  shared-libs:
+    plugin: nil
+    stage-packages:
+    - libgtk-3-0:$CRAFT_ARCH_BUILD_FOR
+    - libavcodec60:$CRAFT_ARCH_BUILD_FOR
+    - libavformat60:$CRAFT_ARCH_BUILD_FOR
+    - libavutil58:$CRAFT_ARCH_BUILD_FOR
+    - libswscale7:$CRAFT_ARCH_BUILD_FOR
+    - libtbb12:$CRAFT_ARCH_BUILD_FOR
+    - libtiff6:$CRAFT_ARCH_BUILD_FOR
+    - libjpeg-turbo8:$CRAFT_ARCH_BUILD_FOR
+    - libpng16-16t64:$CRAFT_ARCH_BUILD_FOR
+    - libwebp7:$CRAFT_ARCH_BUILD_FOR
+    - libopenblas0:$CRAFT_ARCH_BUILD_FOR
+    - librsvg2-common:$CRAFT_ARCH_BUILD_FOR
+    - librsvg2-2:$CRAFT_ARCH_BUILD_FOR
+    - librsvg2-common:$CRAFT_ARCH_BUILD_FOR
+    - adwaita-icon-theme:$CRAFT_ARCH_BUILD_FOR
+    - libgdk-pixbuf2.0-0:$CRAFT_ARCH_BUILD_FOR
+    - libgdk-pixbuf2.0-common:$CRAFT_ARCH_BUILD_FOR
+    - shared-mime-info:$CRAFT_ARCH_BUILD_FOR
+    - gir1.2-gdkpixbuf-2.0:$CRAFT_ARCH_BUILD_FOR
+    - libgstreamer1.0-0:$CRAFT_ARCH_BUILD_FOR
+    - libgstreamer-plugins-base1.0-0:$CRAFT_ARCH_BUILD_FOR
+    - libgstreamer-plugins-bad1.0-0:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-plugins-base:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-plugins-good:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-plugins-bad:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-plugins-ugly:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-plugins-base-apps:$CRAFT_ARCH_BUILD_FOR
+    - gstreamer1.0-tools:$CRAFT_ARCH_BUILD_FOR
+    override-prime: |
+      craftctl default
+      # Generate MIME database
+      update-mime-database $CRAFT_PRIME/usr/share/mime
+      # Generate loaders cache for GDK Pixbuf image loader plugins
+      $CRAFT_PRIME/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0/gdk-pixbuf-query-loaders \
+        > $CRAFT_PRIME/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
+      sed -i "s|$CRAFT_PRIME||g" \
+        $CRAFT_PRIME/usr/lib/aarch64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders.cache
+
+  tvm-runtime:
+    plugin: nil
+    source: https://github.com/renesas-rz/rzv_drp-ai_tvm.git
+    source-type: git
+    source-tag: v2.5.1
+    source-depth: 1
+    override-build: |
+      set -eux
+      ls -l $CRAFT_PART_SRC
+      mkdir -p "$CRAFT_PART_INSTALL/usr/local/tvm"
+      cp -a $CRAFT_PART_SRC/tvm $CRAFT_PART_INSTALL/usr/local/tvm/
+
+      # Follow Renesas Dockerfile setup
+      cp -a $CRAFT_PART_SRC/setup/include/*.h $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/tvm/runtime
+
+      # Copy to TVM folder to match with CMakefiles
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
+      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
+
+      # Workaround without the libc header from kernel
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/linux
+      cp ${CRAFT_PROJECT_DIR}/drpai.h $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/linux
+
+    override-prime: |
+      craftctl default
+      mkdir -p $CRAFT_PRIME/usr/lib/
+      # Install runtime library
+      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PRIME/usr/lib/
+
+      # Remove TVM
+      rm -rf $CRAFT_PRIME/usr/local/tvm/
+
+  opencv:
+    plugin: cmake
+    source: https://github.com/opencv/opencv.git
+    source-type: git
+    source-tag: "4.9.0"
+    source-depth: 1
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
+      - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_TESTS=OFF
+      - -DBUILD_PERF_TESTS=OFF
+      - -DBUILD_EXAMPLES=OFF
+      - -DBUILD_DOCS=OFF
+      - -DWITH_GTK=ON
+      - -DWITH_FFMPEG=ON
+      - -DWITH_GSTREAMER=ON
+      - -DWITH_TBB=ON
+      - -DWITH_OPENMP=ON
+      - -DWITH_IPP=OFF
+      - -DWITH_CUDA=OFF
+      - -DWITH_1394=OFF
+      - -DWITH_OPENEXR=OFF
+      - -DBUILD_opencv_python3=OFF
+      - -DOPENCV_GENERATE_PKGCONFIG=ON
+    build-packages:
+      - build-essential
+      - cmake
+      - pkg-config
+      - libgtk-3-dev:$CRAFT_ARCH_BUILD_FOR
+      - libavcodec-dev:$CRAFT_ARCH_BUILD_FOR
+      - libavformat-dev:$CRAFT_ARCH_BUILD_FOR
+      - libswscale-dev:$CRAFT_ARCH_BUILD_FOR
+      - libtbb-dev:$CRAFT_ARCH_BUILD_FOR
+      - libjpeg-dev:$CRAFT_ARCH_BUILD_FOR
+      - libpng-dev:$CRAFT_ARCH_BUILD_FOR
+      - libtiff-dev:$CRAFT_ARCH_BUILD_FOR
+      - libwebp-dev:$CRAFT_ARCH_BUILD_FOR
+      - libopenblas-dev:$CRAFT_ARCH_BUILD_FOR
+      - libeigen3-dev:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer1.0-dev:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer-plugins-base1.0-dev:$CRAFT_ARCH_BUILD_FOR
+      - libgstreamer-plugins-bad1.0-dev:$CRAFT_ARCH_BUILD_FOR
+
+  rz-ai-sdk-src:
+    after: [tvm-runtime, opencv]
+    plugin: nil
+    source: https://github.com/renesas-rz/rzv_ai_sdk.git
+    source-type: git
+    source-tag: v6.20
+    source-depth: 1
+    override-pull: |
+      craftctl default
+      # Patch CMakefiles for correct TVM run time library and add install support
+      git apply -v ${CRAFT_PROJECT_DIR}/patches/cmake.patch
+    build-packages:
+      - cmake
+      - ninja-build
+      - pkg-config
+      - gcc-aarch64-linux-gnu
+      - g++-aarch64-linux-gnu
+      - libwayland-dev:$CRAFT_ARCH_BUILD_FOR
+      - libgles-dev:$CRAFT_ARCH_BUILD_FOR
+      - libtesseract-dev:$CRAFT_ARCH_BUILD_FOR
+      - libboost1.83-dev:$CRAFT_ARCH_BUILD_FOR
+      - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf-dev:$CRAFT_ARCH_BUILD_FOR
+      - linux-libc-dev-renesas
+    stage-packages:
+      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
+      - libtesseract5:$CRAFT_ARCH_BUILD_FOR
+      - v4l-utils:$CRAFT_ARCH_BUILD_FOR
+      - qtwayland5:$CRAFT_ARCH_BUILD_FOR
+      - xkb-data:$CRAFT_ARCH_BUILD_FOR
+    prime:
+      - -usr/lib/x86_64-linux-gnu
+
+  footfall-counter-model:
+    after: [q01-footfall-counter]
+    source: https://github.com/renesas-rz/rzv_ai_sdk/releases/download/v6.20/Q01_footfall_counter_deploy_tvm_v2h-v251.so
+    source-type: file
+    plugin: dump
+    organize:
+      Q01_footfall_counter_deploy_tvm_v2h-v251.so: usr/q01/bin/d-yolov3/deploy.so
+
+  q01-footfall-counter:
+    after: [rz-ai-sdk-src]
+    plugin: cmake
+    source: ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/src
+    source-type: local
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr/q01
+      - -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
+      - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+      - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
+    build-environment:
+      - PRODUCT: V2H
+      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+    build-packages:
+      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
+      - wayland-protocols
+      - libwayland-bin  # provides wayland-scanner
+    override-build: |
+      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/q01.patch
+      # Generate the file where the CMakeLists.txt expects it
+      mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
+      wayland-scanner private-code \
+        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c
+      # Generate the header
+      wayland-scanner client-header \
+        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
+      mkdir -p $CRAFT_PART_INSTALL/usr/q01/bin/
+      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q01/bin/
+      craftctl default
+    override-prime: |
+      craftctl default
+      cp -a ${CRAFT_PROJECT_DIR}/scripts/launch-object-tracker.sh $CRAFT_PRIME/usr/q01/bin/
+
+  q08-object-counter:
+    after: [rz-ai-sdk-src]
+    plugin: cmake
+    source: ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/src
+    source-type: local
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr/q08
+      - -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
+      - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+      - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
+    build-environment:
+      - PRODUCT: V2H
+      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+    override-build: |
+      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/q08.patch
+      mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
+      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
+      craftctl default
+    override-prime: |
+      craftctl default
+      cp -a ${CRAFT_PROJECT_DIR}/scripts/launch-object-counter.sh $CRAFT_PRIME/usr/q08/bin/
+
+  gpu-2404:
+    after: [q01-footfall-counter, q08-object-counter]
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404
+    prime:
+    - bin/gpu-2404-wrapper
+
+apps:
+  object-tracker:
+    command-chain:
+    - bin/gpu-2404-wrapper
+    command: usr/q01/bin/launch-object-tracker.sh
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
+      XDG_RUNTIME_DIR: /run/user/1000
+      WAYLAND_DISPLAY: wayland-0
+      QT_QPA_PLATFORM: wayland-egl
+      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/aarch64-linux-gnu/qt5/plugins
+      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
+      __EGL_VENDOR_LIBRARY_DIRS: $SNAP/usr/share/glvnd/egl_vendor.d
+      XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
+    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404]
+
+  object-counter:
+    command-chain:
+    - bin/gpu-2404-wrapper
+    command: usr/q08/bin/launch-object-counter.sh
+    environment:
+      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
+      XDG_RUNTIME_DIR: /run/user/1000
+      WAYLAND_DISPLAY: wayland-0
+      QT_QPA_PLATFORM: wayland-egl
+      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/gpu-2404/lib/qt5/plugins
+      XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
+      __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
+      XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
+    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404]
+

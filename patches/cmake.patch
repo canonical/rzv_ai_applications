@@ -1,0 +1,230 @@
+diff --git a/Q01_footfall_counter/src/CMakeLists.txt b/Q01_footfall_counter/src/CMakeLists.txt
+index c5ccffd..a94be26 100644
+--- a/Q01_footfall_counter/src/CMakeLists.txt
++++ b/Q01_footfall_counter/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME object_tracker)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -61,3 +61,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q02_face_authentication/src/CMakeLists.txt b/Q02_face_authentication/src/CMakeLists.txt
+index eb292d5..9cae524 100644
+--- a/Q02_face_authentication/src/CMakeLists.txt
++++ b/Q02_face_authentication/src/CMakeLists.txt
+@@ -11,7 +11,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME face_recognition)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -45,4 +45,6 @@ if(PRODUCT STREQUAL "V2H")
+ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+-endif()
+\ No newline at end of file
++endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q04_fish_classification/src/CMakeLists.txt b/Q04_fish_classification/src/CMakeLists.txt
+index 7e22851..39d359c 100755
+--- a/Q04_fish_classification/src/CMakeLists.txt
++++ b/Q04_fish_classification/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME fish_classification)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -58,4 +58,6 @@ if(PRODUCT STREQUAL "V2H")
+ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+-endif()
+\ No newline at end of file
++endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q05_suspicious_activity/src/CMakeLists.txt b/Q05_suspicious_activity/src/CMakeLists.txt
+index 3f620f9..ccf852f 100755
+--- a/Q05_suspicious_activity/src/CMakeLists.txt
++++ b/Q05_suspicious_activity/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME suspicious_activity)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -61,3 +61,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q06_expiry_date_detection/src/CMakeLists.txt b/Q06_expiry_date_detection/src/CMakeLists.txt
+index 5689618..90141fd 100755
+--- a/Q06_expiry_date_detection/src/CMakeLists.txt
++++ b/Q06_expiry_date_detection/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME date_extraction)
+ # set common files sources
+ file(GLOB COMM_SRC ./common/*.cpp ./common/*.h ./common/*/*.cpp ./common/*/*.h)
+@@ -71,3 +71,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q07_plant_disease_classification/src/CMakeLists.txt b/Q07_plant_disease_classification/src/CMakeLists.txt
+index 2c215b5..2c25973 100755
+--- a/Q07_plant_disease_classification/src/CMakeLists.txt
++++ b/Q07_plant_disease_classification/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME plant_leaf_disease_classify)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -67,3 +67,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q08_object_counter/src/CMakeLists.txt b/Q08_object_counter/src/CMakeLists.txt
+index c9e60a5..96914bc 100755
+--- a/Q08_object_counter/src/CMakeLists.txt
++++ b/Q08_object_counter/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME object_counter)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -59,4 +59,6 @@ if(PRODUCT STREQUAL "V2H")
+ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+-endif()
+\ No newline at end of file
++endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q09_crack_segmentation/src/CMakeLists.txt b/Q09_crack_segmentation/src/CMakeLists.txt
+index 65c96b6..5c50c7c 100755
+--- a/Q09_crack_segmentation/src/CMakeLists.txt
++++ b/Q09_crack_segmentation/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME crack_segmentation)
+ # set common files sources
+ file(GLOB COMM_SRC ./common/*.cpp ./common/*.h ./common/*/*.cpp ./common/*/*.h)
+@@ -71,3 +71,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q10_suspicious_person_detection/src/CMakeLists.txt b/Q10_suspicious_person_detection/src/CMakeLists.txt
+index 4e816e5..3495a6f 100755
+--- a/Q10_suspicious_person_detection/src/CMakeLists.txt
++++ b/Q10_suspicious_person_detection/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME suspicious_person_detector)
+ # set common files sources
+ file(GLOB COMM_SRC ./common/*.cpp ./common/*.h ./common/*/*.cpp ./common/*/*.h)
+@@ -71,3 +71,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/Q11_fish_detection/src/CMakeLists.txt b/Q11_fish_detection/src/CMakeLists.txt
+index 885b5ea..e70055e 100755
+--- a/Q11_fish_detection/src/CMakeLists.txt
++++ b/Q11_fish_detection/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME fish_detector)
+ # set common files sources
+ file(GLOB COMM_SRC ./common/*.cpp ./common/*.h ./common/*/*.cpp ./common/*/*.h)
+@@ -71,3 +71,5 @@ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+ endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+diff --git a/R01_object_detection/src/CMakeLists.txt b/R01_object_detection/src/CMakeLists.txt
+index fc31d1b..1b8b4d8 100755
+--- a/R01_object_detection/src/CMakeLists.txt
++++ b/R01_object_detection/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME object_detection)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -40,6 +40,8 @@ else()
+     message("-- PRODUCT [V2L]")
+ endif()
+ 
++include_directories(/usr/include/ubuntu/mmngr_drv)
++
+ add_executable (${EXE_NAME}
+ ${SOURCE}
+ )
+@@ -63,4 +65,6 @@ if(PRODUCT STREQUAL "V2H")
+ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+-endif()
+\ No newline at end of file
++endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)

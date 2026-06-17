@@ -1,0 +1,28 @@
+diff --git a/Q08_object_counter/src/main.cpp b/Q08_object_counter/src/main.cpp
+index 6dd1f12..87a9931 100755
+--- a/Q08_object_counter/src/main.cpp
++++ b/Q08_object_counter/src/main.cpp
+@@ -1265,12 +1265,14 @@ int32_t main(int32_t argc, char *argv[])
+     int8_t ret_w = 0;
+     int8_t ret_main = 0;
+ 
++#if 0
+ #ifdef V2H
+     /*Disable OpenCV Accelerator due to the use of multithreading */
+     unsigned long OCA_list[16];
+     for (int i = 0; i < 16; i++)
+         OCA_list[i] = 0;
+     OCA_Activate(&OCA_list[0]);
++#endif
+ #endif
+ 
+     /*Multithreading Variables*/
+@@ -1366,7 +1368,7 @@ int32_t main(int32_t argc, char *argv[])
+     {
+         std::cout << "[INFO] USB CAMERA \n";
+         std::string media_port = query_device_status("usb");
+-        gstreamer_pipeline = "v4l2src device=" + media_port + " ! videoconvert ! appsink";
++        gstreamer_pipeline = "v4l2src device=" + media_port + " io-mode=dmabuf ! video/x-raw,width=640,height=480 ! videoconvert ! appsink -v";
+     }
+     break;
+     default:
