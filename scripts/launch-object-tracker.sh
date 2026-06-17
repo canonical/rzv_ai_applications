@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ "$#" -ne 1 ]; then
-    echo "Usage: rzv-ai-sdk-collection.object-tracker <USB|MIPI>"
+    echo "Usage: rzv-ai-applications.object-tracker <USB|MIPI>"
     exit 1
 fi
 
