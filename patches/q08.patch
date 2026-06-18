@@ -1,5 +1,5 @@
 diff --git a/Q08_object_counter/src/main.cpp b/Q08_object_counter/src/main.cpp
-index 6dd1f12..be9363a 100755
+index 6dd1f12..a3b3cc4 100755
 --- a/Q08_object_counter/src/main.cpp
 +++ b/Q08_object_counter/src/main.cpp
 @@ -97,6 +97,7 @@ std::map<std::string, int> input_source_map =
@@ -32,22 +32,7 @@ index 6dd1f12..be9363a 100755
              cv::putText(bgra_image, "Total Objects:  " + std::to_string(total_count), cv::Point(DISP_IMAGE_OUTPUT_WIDTH + 20, 150),
                          cv::FONT_HERSHEY_DUPLEX, font_size, cv::Scalar(255, 255, 255), font_weight);
              cv::cvtColor(bgra_image, bgra_image, cv::COLOR_BGR2BGRA);
-@@ -1265,12 +1273,14 @@ int32_t main(int32_t argc, char *argv[])
-     int8_t ret_w = 0;
-     int8_t ret_main = 0;
- 
-+#if 0
- #ifdef V2H
-     /*Disable OpenCV Accelerator due to the use of multithreading */
-     unsigned long OCA_list[16];
-     for (int i = 0; i < 16; i++)
-         OCA_list[i] = 0;
-     OCA_Activate(&OCA_list[0]);
-+#endif
- #endif
- 
-     /*Multithreading Variables*/
-@@ -1366,7 +1376,14 @@ int32_t main(int32_t argc, char *argv[])
+@@ -1366,7 +1374,14 @@ int32_t main(int32_t argc, char *argv[])
      {
          std::cout << "[INFO] USB CAMERA \n";
          std::string media_port = query_device_status("usb");

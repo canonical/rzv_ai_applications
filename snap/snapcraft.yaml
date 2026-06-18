@@ -121,6 +121,7 @@ parts:
       - -DCMAKE_INSTALL_PREFIX=/usr
       - -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
       - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+      - -DCMAKE_CXX_FLAGS="-fvisibility=default"
       - -DCMAKE_BUILD_TYPE=Release
       - -DBUILD_SHARED_LIBS=ON
       - -DBUILD_TESTS=OFF
@@ -158,14 +159,16 @@ parts:
       - libgstreamer-plugins-bad1.0-dev:$CRAFT_ARCH_BUILD_FOR
     override-build: |
       echo "Apply OCA patches"
-      PATCH_FILE1=$CRAFT_PROJECT_DIR/patches/oca/0001-add-drpai-setting-for-opencva.patch
-      PATCH_FILE2=$CRAFT_PROJECT_DIR/patches/oca/0002-add-oca-list-num.patch
-      PATCH_FILE3=$CRAFT_PROJECT_DIR/patches/oca/0003-add-drpai-setting-for-opencva-stereosgm.patch
-      PATCH_FILE4=$CRAFT_PROJECT_DIR/patches/oca/0004-fix-opencva-memoryleak-scarthgap-rev1.patch
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p1 $PATCH_FILE1 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p1 $PATCH_FILE1
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p1 $PATCH_FILE2 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p1 $PATCH_FILE2
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p1 $PATCH_FILE3 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p1 $PATCH_FILE3
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p1 $PATCH_FILE4 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p1 $PATCH_FILE4
+      PATCHES=(
+        $CRAFT_PROJECT_DIR/patches/oca/0001-add-drpai-setting-for-opencva.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0002-add-oca-list-num.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0003-add-drpai-setting-for-opencva-stereosgm.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0004-fix-opencva-memoryleak-scarthgap-rev1.patch
+      )
+      for patch in "${PATCHES[@]}"; do
+        echo "Applying $patch"
+        git -C "$CRAFT_PART_SRC" apply -v -p1 "$patch"
+      done
       craftctl default
 
   rz-ai-sdk-src:
@@ -230,7 +233,7 @@ parts:
       - libwayland-bin  # provides wayland-scanner
     override-build: |
       PATCH_FILE=$CRAFT_PROJECT_DIR/patches/q01.patch
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p3 $PATCH_FILE 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
       # Generate the file where the CMakeLists.txt expects it
       mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
       wayland-scanner private-code \
@@ -262,7 +265,7 @@ parts:
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     override-build: |
       PATCH_FILE=$CRAFT_PROJECT_DIR/patches/q08.patch
-      git -C $CRAFT_PART_SRC/ apply --reverse --check -p3 $PATCH_FILE 2>/dev/null && echo "patch already applied" || git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
       mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
       craftctl default

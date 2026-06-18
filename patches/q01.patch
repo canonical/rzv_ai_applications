@@ -1,20 +1,8 @@
 diff --git a/Q01_footfall_counter/src/main.cpp b/Q01_footfall_counter/src/main.cpp
-index b27937d..723b33f 100644
+index b27937d..f5b653e 100644
 --- a/Q01_footfall_counter/src/main.cpp
 +++ b/Q01_footfall_counter/src/main.cpp
-@@ -1327,9 +1327,11 @@ int32_t main(int32_t argc, char * argv[])
- 
-     /*Disable OpenCV Accelerator due to the use of multithreading */
-     #ifdef V2H
-+#if 0
-     unsigned long OCA_list[16];
-     for(int i = 0; i < 16; i++) OCA_list[i] = 0;
-     OCA_Activate(&OCA_list[0]);
-+#endif
-     #endif
- 
-     /*Multithreading Variables*/
-@@ -1364,7 +1366,7 @@ int32_t main(int32_t argc, char * argv[])
+@@ -1364,7 +1364,7 @@ int32_t main(int32_t argc, char * argv[])
          {
              std::cout << "[INFO] USB CAMERA \n";
              std::string media_port = query_device_status("usb");
