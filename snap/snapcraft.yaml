@@ -160,6 +160,13 @@ parts:
     override-build: |
       echo "Apply OCA patches"
       PATCHES=(
+        $CRAFT_PROJECT_DIR/patches/oca/0001-Dont-use-isystem.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0001-Make-ts-module-external.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0001-Temporarliy-work-around-deprecated-ffmpeg-RAW-functi.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0001-Use-Os-to-compile-tinyxml2.cpp.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0003-To-fix-errors-as-following.patch
+        $CRAFT_PROJECT_DIR/patches/oca/0008-Do-not-embed-build-directory-in-binaries.patch
+        $CRAFT_PROJECT_DIR/patches/oca/download.patch
         $CRAFT_PROJECT_DIR/patches/oca/0001-add-drpai-setting-for-opencva.patch
         $CRAFT_PROJECT_DIR/patches/oca/0002-add-oca-list-num.patch
         $CRAFT_PROJECT_DIR/patches/oca/0003-add-drpai-setting-for-opencva-stereosgm.patch
