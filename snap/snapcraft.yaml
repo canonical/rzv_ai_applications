@@ -87,7 +87,6 @@ parts:
     source-depth: 1
     override-build: |
       set -eux
-      ls -l $CRAFT_PART_SRC
       mkdir -p "$CRAFT_PART_INSTALL/usr/local/tvm"
       cp -a $CRAFT_PART_SRC/tvm $CRAFT_PART_INSTALL/usr/local/tvm/
 
@@ -235,7 +234,7 @@ parts:
       - libwayland-bin  # provides wayland-scanner
     override-build: |
       # Patch CMakefiles for correct TVM run time library and add install support
-      git -C $CRAFT_PART_SRC/ apply -v ${CRAFT_PROJECT_DIR}/patches/apps/q01/cmake.patch
+      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q01/cmake.patch
       # patch the application (mainly for camera support)
       git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01/q01.patch
       # Generate the file where the CMakeLists.txt expects it
@@ -269,9 +268,9 @@ parts:
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     override-build: |
       # Patch CMakefiles for correct TVM run time library and add install support
-      git -C $CRAFT_PART_SRC/ apply -v ${CRAFT_PROJECT_DIR}/patches/apps/q08/cmake.patch
+      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q08/cmake.patch
       # patch the application (mainly for camera support)
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/q08.patch
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q08/q08.patch
       mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
       craftctl default
