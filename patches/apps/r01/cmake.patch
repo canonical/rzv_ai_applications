@@ -1,0 +1,23 @@
+diff --git a/R01_object_detection/src/CMakeLists.txt b/R01_object_detection/src/CMakeLists.txt
+index c95e94b..215434d 100755
+--- a/R01_object_detection/src/CMakeLists.txt
++++ b/R01_object_detection/src/CMakeLists.txt
+@@ -9,7 +9,7 @@ include_directories(${TVM_ROOT}/3rdparty/dlpack/include)
+ include_directories(${TVM_ROOT}/3rdparty/dmlc-core/include)
+ include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
+ 
+-set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
+ set(EXE_NAME object_detection)
+ set(PRODUCT $ENV{PRODUCT})
+ 
+@@ -58,4 +58,6 @@ if(PRODUCT STREQUAL "V2H")
+ endif()
+ if(PRODUCT STREQUAL "V2N")
+     target_compile_definitions(${EXE_NAME} PRIVATE V2N)
+-endif()
+\ No newline at end of file
++endif()
++
++install(TARGETS ${EXE_NAME} RUNTIME)
+\ No newline at end of file

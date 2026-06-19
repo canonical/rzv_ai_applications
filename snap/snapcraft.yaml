@@ -183,12 +183,8 @@ parts:
     plugin: nil
     source: https://github.com/renesas-rz/rzv_ai_sdk.git
     source-type: git
-    source-tag: v6.20
+    source-tag: v7.10
     source-depth: 1
-    override-pull: |
-      craftctl default
-      # Patch CMakefiles for correct TVM run time library and add install support
-      git apply -v ${CRAFT_PROJECT_DIR}/patches/cmake.patch
     build-packages:
       - cmake
       - ninja-build
@@ -239,8 +235,10 @@ parts:
       - wayland-protocols
       - libwayland-bin  # provides wayland-scanner
     override-build: |
-      PATCH_FILE=$CRAFT_PROJECT_DIR/patches/q01.patch
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
+      # Patch CMakefiles for correct TVM run time library and add install support
+      git -C $CRAFT_PART_SRC/ apply -v ${CRAFT_PROJECT_DIR}/patches/apps/q01/cmake.patch
+      # patch the application (mainly for camera support)
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01/q01.patch
       # Generate the file where the CMakeLists.txt expects it
       mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
       wayland-scanner private-code \
@@ -271,8 +269,10 @@ parts:
       - PRODUCT: V2H
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     override-build: |
-      PATCH_FILE=$CRAFT_PROJECT_DIR/patches/q08.patch
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $PATCH_FILE
+      # Patch CMakefiles for correct TVM run time library and add install support
+      git -C $CRAFT_PART_SRC/ apply -v ${CRAFT_PROJECT_DIR}/patches/apps/q08/cmake.patch
+      # patch the application (mainly for camera support)
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/q08.patch
       mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
       craftctl default

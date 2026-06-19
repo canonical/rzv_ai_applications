@@ -1,8 +1,8 @@
 diff --git a/Q01_footfall_counter/src/main.cpp b/Q01_footfall_counter/src/main.cpp
-index b27937d..f5b653e 100644
+index fa1b0b5..90fada4 100644
 --- a/Q01_footfall_counter/src/main.cpp
 +++ b/Q01_footfall_counter/src/main.cpp
-@@ -1364,7 +1364,7 @@ int32_t main(int32_t argc, char * argv[])
+@@ -1366,7 +1366,7 @@ int32_t main(int32_t argc, char * argv[])
          {
              std::cout << "[INFO] USB CAMERA \n";
              std::string media_port = query_device_status("usb");
