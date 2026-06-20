@@ -183,19 +183,6 @@ parts:
     source-type: git
     source-tag: v7.10
     source-depth: 1
-    build-packages:
-      - cmake
-      - ninja-build
-      - pkg-config
-      - gcc-aarch64-linux-gnu
-      - g++-aarch64-linux-gnu
-      - libwayland-dev:$CRAFT_ARCH_BUILD_FOR
-      - libgles-dev:$CRAFT_ARCH_BUILD_FOR
-      - libtesseract-dev:$CRAFT_ARCH_BUILD_FOR
-      - libboost1.83-dev:$CRAFT_ARCH_BUILD_FOR
-      - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
-      - libmmngrbuf-dev:$CRAFT_ARCH_BUILD_FOR
-      - linux-libc-dev-renesas
     stage-packages:
       - libmmngr1:$CRAFT_ARCH_BUILD_FOR
       - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
@@ -230,22 +217,11 @@ parts:
     build-packages:
       - libmmngr1:$CRAFT_ARCH_BUILD_FOR
       - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
-      - wayland-protocols
-      - libwayland-bin  # provides wayland-scanner
     override-build: |
       # Patch CMakefiles for correct TVM run time library and add install support
       git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q01/cmake.patch
       # patch the application (mainly for camera support)
       git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01/q01.patch
-      # Generate the file where the CMakeLists.txt expects it
-      mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
-      wayland-scanner private-code \
-        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c
-      # Generate the header
-      wayland-scanner client-header \
-        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
       mkdir -p $CRAFT_PART_INSTALL/usr/q01/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q01/bin/
       craftctl default
@@ -266,11 +242,25 @@ parts:
     build-environment:
       - PRODUCT: V2H
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+    build-packages:
+      - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf-dev:$CRAFT_ARCH_BUILD_FOR
+      - wayland-protocols
+      - libwayland-bin  # provides wayland-scanner
     override-build: |
       # Patch CMakefiles for correct TVM run time library and add install support
       git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q08/cmake.patch
       # patch the application (mainly for camera support)
       git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q08/q08.patch
+      # Generate the source file where the CMakeLists.txt expects it
+      mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
+      wayland-scanner private-code \
+        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c
+      # Generate the header
+      wayland-scanner client-header \
+        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
       mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
       craftctl default
