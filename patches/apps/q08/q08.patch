@@ -43,8 +43,9 @@ index 611ec53..afe2817 100755
 +    // this case added just for automated tests requiring no camera
 +    case 3:
 +    {
-+        std::cout << "[INFO] TEST IMAGE (/home/ubuntu/test.png)\n";
-+        gstreamer_pipeline = "filesrc location=/home/ubuntu/test.png ! pngdec ! imagefreeze ! videoconvert ! video/x-raw,format=BGR,width=640,height=480,framerate=30/1 ! appsink";
++        std::string test_image_path = (argc > 2) ? argv[2] : "/home/ubuntu/test.png";
++        std::cout << "[INFO] TEST IMAGE (" << test_image_path << ")\n";
++        gstreamer_pipeline = "filesrc location=" + test_image_path + " ! pngdec ! imagefreeze ! videoconvert ! video/x-raw,format=BGR,width=640,height=480,framerate=30/1 ! appsink";
      }
      break;
      default:
