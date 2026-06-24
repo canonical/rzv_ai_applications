@@ -7,7 +7,7 @@ index 4352d17..f01ebe6 100644
  include_directories(${TVM_ROOT}/3rdparty/compiler-rt)
  
 -set(TVM_RUNTIME_LIB ${TVM_ROOT}/build_runtime/libtvm_runtime.so)
-+set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2H/libtvm_runtime.so)
++set(TVM_RUNTIME_LIB ${TVM_ROOT}/../obj/build_runtime/V2N/libtvm_runtime.so)
  set(EXE_NAME object_tracker)
  set(PRODUCT $ENV{PRODUCT})
  

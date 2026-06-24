@@ -1,9 +1,9 @@
-name: rzv-ai-applications
+name: rzv-ai-applications-v2n
 base: core24
 version: '1.0'
-summary: Renesas RZ/V AI Applications for RZ/V2H
+summary: Renesas RZ/V AI Applications for RZ/V2N
 description: |
-  This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
+  This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2N.
   The DRP-AI TVM runtime is staged from renesas-rz/rzv_drp-ai_tvm, v2.5.1.
 
 grade: devel
@@ -94,8 +94,8 @@ parts:
       cp -a $CRAFT_PART_SRC/setup/include/*.h $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/tvm/runtime
 
       # Copy to TVM folder to match with CMakefiles
-      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
-      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2N/
+      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2N/* $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2N/
 
       # Workaround without the libc header from kernel
       mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/linux
@@ -105,7 +105,7 @@ parts:
       craftctl default
       mkdir -p $CRAFT_PRIME/usr/lib/
       # Install runtime library
-      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PRIME/usr/lib/
+      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2N/* $CRAFT_PRIME/usr/lib/
 
       # Remove TVM
       rm -rf $CRAFT_PRIME/usr/local/tvm/
@@ -195,19 +195,19 @@ parts:
 
   footfall-counter-model:
     after: [q01-footfall-counter]
-    source: https://github.com/renesas-rz/rzv_ai_sdk/releases/download/v6.20/Q01_footfall_counter_deploy_tvm_v2h-v251.so
+    source: https://github.com/renesas-rz/rzv_ai_sdk/releases/download/v6.00/Q01_footfall_counter_deploy_tvm_v2n-v251.so
     source-type: file
     plugin: dump
     organize:
-      Q01_footfall_counter_deploy_tvm_v2h-v251.so: usr/q01/bin/d-yolov3/deploy.so
+      Q01_footfall_counter_deploy_tvm_v2n-v251.so: usr/q01/bin/d-yolov3/deploy.so
 
   object-detection-model:
     after: [r01-object-detection]
-    source: https://github.com/renesas-rz/rzv_ai_sdk/releases/download/v6.20/R01_object_detection_deploy_tvm_v2h-v251.so
+    source: https://github.com/renesas-rz/rzv_ai_sdk/releases/download/v6.00/R01_object_detection_deploy_tvm_v2n-v251.so
     source-type: file
     plugin: dump
     organize:
-      R01_object_detection_deploy_tvm_v2h-v251.so: usr/r01/bin/yolov3_onnx/deploy.so
+      R01_object_detection_deploy_tvm_v2n-v251.so: usr/r01/bin/yolov3_onnx/deploy.so
 
   q01-footfall-counter:
     after: [rz-ai-sdk-src]
@@ -220,7 +220,7 @@ parts:
       - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
-      - PRODUCT: V2H
+      - PRODUCT: V2N
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     build-packages:
       - libmmngr1:$CRAFT_ARCH_BUILD_FOR
@@ -231,7 +231,7 @@ parts:
       # patch the application (mainly for camera support)
       git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01/q01.patch
       mkdir -p $CRAFT_PART_INSTALL/usr/q01/bin/
-      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q01/bin/
+      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/exe_v2n/* $CRAFT_PART_INSTALL/usr/q01/bin/
       craftctl default
     override-prime: |
       craftctl default
@@ -248,7 +248,7 @@ parts:
       - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
-      - PRODUCT: V2H
+      - PRODUCT: V2N
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     build-packages:
       - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
@@ -270,7 +270,7 @@ parts:
         /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
         /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
       mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
-      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
+      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2n/* $CRAFT_PART_INSTALL/usr/q08/bin/
       craftctl default
     override-prime: |
       craftctl default
@@ -287,7 +287,7 @@ parts:
       - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
-      - PRODUCT: V2H
+      - PRODUCT: V2N
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
     override-build: |
       # Patch CMakefiles for correct TVM run time library and add install support
@@ -295,7 +295,7 @@ parts:
       # TODO: fix this with proper headers
       cp ${CRAFT_PROJECT_DIR}/mmngr_public_cmn.h /usr/include/
       mkdir -p $CRAFT_PART_INSTALL/usr/r01/bin/
-      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/R01_object_detection/exe_v2h/* $CRAFT_PART_INSTALL/usr/r01/bin/
+      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/R01_object_detection/exe_v2n/* $CRAFT_PART_INSTALL/usr/r01/bin/
       craftctl default
     override-prime: |
       craftctl default
