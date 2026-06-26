@@ -6,19 +6,34 @@ description: |
   This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
   The DRP-AI TVM runtime is staged from renesas-rz/rzv_drp-ai_tvm, v2.5.1.
 
-grade: devel
-confinement: devmode
+compression: lzo
+
+grade: stable
+confinement: strict
 
 platforms:
   arm64:
     build-on: [amd64,arm64]
     build-for: [arm64]
 
+slots:
+  drp-ai-slot:
+    interface: custom-device
+    custom-device: drp-ai-device
+    devices:
+      - /dev/drpai0
+      - /dev/udmabuf
+      - /dev/rgnmm
+      - /dev/rgnmmbuf
+
 plugs:
   gpu-2404:
     interface: content
     target: $SNAP/gpu-2404
     default-provider: mesa-2404
+  drp-ai-plug:
+    interface: custom-device
+    custom-device: drp-ai-device
 
 package-repositories:
   - type: apt
@@ -325,7 +340,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/usr/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404]
+    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-counter:
     command-chain:
@@ -340,7 +355,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404]
+    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-detection:
     command-chain:
@@ -355,4 +370,4 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404]
+    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
