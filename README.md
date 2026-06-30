@@ -33,7 +33,7 @@ and compiled/cross-compiled from an `amd64` or `arm64` host:
 $ snapcraft pack
 ```
 
-> **Note:** The snap is currently set to `grade: devel` and `confinement: devmode`.
+> **Note:** The snap is set to `grade: stable` and `confinement: strict`. The compression is set to `lzo` for faster launch time.
 
 ## Install and Run the AI Application Snap
 The snap contains two applications from the Renesas AI SDK: `object-tracker` and `object-counter`. `object-counter` itself hast three different models to count different object types: vehicle, animal and coco (general).
