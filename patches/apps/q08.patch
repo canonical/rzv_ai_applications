@@ -1,0 +1,20 @@
+diff --git a/Q08_object_counter/src/main.cpp b/Q08_object_counter/src/main.cpp
+index 611ec53..5730fc0 100755
+--- a/Q08_object_counter/src/main.cpp
++++ b/Q08_object_counter/src/main.cpp
+@@ -1362,7 +1362,7 @@ int32_t main(int32_t argc, char *argv[])
+         std::cout << "[INFO] MIPI CAMERA \n";
+         mipi_cam_init();
+         std::string media_port = query_device_status("CRU");
+-        gstreamer_pipeline = "v4l2src device=" + media_port + " ! video/x-raw,format=YUY2,width=640,height=480 ! videoconvert ! appsink";
++        gstreamer_pipeline = "v4l2src device=" + media_port + " ! video/x-raw,format=UYVY,width=640,height=480 ! videoconvert ! appsink";
+     }
+     break;
+     /* Input Source : USB Camera */
+@@ -1553,4 +1553,4 @@ end_main:
+     delete[] drpai_output_buf;
+     printf("Application End\n");
+     return ret_main;
+-}
+\ No newline at end of file
++}

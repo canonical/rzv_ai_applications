@@ -1,6 +1,6 @@
 name: rzv-ai-applications
 base: core24
-version: '1.0'
+version: '2.0'
 summary: Renesas RZ/V AI Applications for RZ/V2H
 description: |
   This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
@@ -102,20 +102,17 @@ parts:
     source-depth: 1
     override-build: |
       set -eux
-      mkdir -p "$CRAFT_PART_INSTALL/usr/local/tvm"
-      cp -a $CRAFT_PART_SRC/tvm $CRAFT_PART_INSTALL/usr/local/tvm/
-
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm
+      cp -a $CRAFT_PART_SRC/tvm/* $CRAFT_PART_INSTALL/usr/local/tvm/
       # Follow Renesas Dockerfile setup
-      cp -a $CRAFT_PART_SRC/setup/include/*.h $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/tvm/runtime
-
-      # Copy to TVM folder to match with CMakefiles
-      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
-      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PART_INSTALL/usr/local/tvm/obj/build_runtime/V2H/
+      cp -a $CRAFT_PART_SRC/setup/include/*.h $CRAFT_PART_INSTALL/usr/local/tvm/include/tvm/runtime
+      # Copy the TVM runtime library where the application CMake expects it
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/build_runtime/
+      cp -a $CRAFT_PART_SRC/obj/build_runtime/V2H/* $CRAFT_PART_INSTALL/usr/local/tvm/build_runtime/
 
       # Workaround without the libc header from kernel
-      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/linux
-      cp ${CRAFT_PROJECT_DIR}/drpai.h $CRAFT_PART_INSTALL/usr/local/tvm/tvm/include/linux
-
+      mkdir -p $CRAFT_PART_INSTALL/usr/local/tvm/include/linux
+      cp ${CRAFT_PROJECT_DIR}/drpai.h $CRAFT_PART_INSTALL/usr/local/tvm/include/linux
     override-prime: |
       craftctl default
       mkdir -p $CRAFT_PRIME/usr/lib/
@@ -236,15 +233,15 @@ parts:
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
       - PRODUCT: V2H
-      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm
     build-packages:
       - libmmngr1:$CRAFT_ARCH_BUILD_FOR
       - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
     override-build: |
-      # Patch CMakefiles for correct TVM run time library and add install support
-      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q01/cmake.patch
-      # patch the application (mainly for camera support)
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01/q01.patch
+      # We need to add this because cmake plugin by default does: cmake --build . --target install
+      sed -i "\$a install(TARGETS object_tracker RUNTIME)" $CRAFT_PART_SRC/CMakeLists.txt
+      # patch the application for gstreamer pipeline config
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q01.patch
       mkdir -p $CRAFT_PART_INSTALL/usr/q01/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q01_footfall_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q01/bin/
       craftctl default
@@ -264,17 +261,17 @@ parts:
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
       - PRODUCT: V2H
-      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm
     build-packages:
       - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
       - libmmngrbuf-dev:$CRAFT_ARCH_BUILD_FOR
       - wayland-protocols
       - libwayland-bin  # provides wayland-scanner
     override-build: |
-      # Patch CMakefiles for correct TVM run time library and add install support
-      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/q08/cmake.patch
-      # patch the application (mainly for camera support)
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q08/q08.patch
+      # We need to add this because cmake plugin by default does: cmake --build . --target install
+      sed -i "\$a install(TARGETS object_counter RUNTIME)" $CRAFT_PART_SRC/CMakeLists.txt
+      # patch the application for gstreamer pipeline config
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q08.patch
       # Generate the source file where the CMakeLists.txt expects it
       mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
       wayland-scanner private-code \
@@ -303,10 +300,12 @@ parts:
       - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
     build-environment:
       - PRODUCT: V2H
-      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm/tvm
+      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm
     override-build: |
-      # Patch CMakefiles for correct TVM run time library and add install support
-      git -C $CRAFT_PART_SRC/ apply -v -p3 ${CRAFT_PROJECT_DIR}/patches/apps/r01/cmake.patch
+      # We need to add this because cmake plugin by default does: cmake --build . --target install
+      sed -i "\$a install(TARGETS object_detection RUNTIME)" $CRAFT_PART_SRC/CMakeLists.txt
+      # patch the application for gstreamer pipeline config
+      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/r01.patch
       # TODO: fix this with proper headers
       cp ${CRAFT_PROJECT_DIR}/mmngr_public_cmn.h /usr/include/
       mkdir -p $CRAFT_PART_INSTALL/usr/r01/bin/
@@ -340,7 +339,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/usr/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
+    plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-counter:
     command-chain:
@@ -355,7 +354,7 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
+    plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-detection:
     command-chain:
@@ -370,4 +369,4 @@ apps:
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
+    plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]

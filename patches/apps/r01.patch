@@ -1,0 +1,13 @@
+diff --git a/R01_object_detection/src/main.cpp b/R01_object_detection/src/main.cpp
+index 5b30bfb..146bb30 100755
+--- a/R01_object_detection/src/main.cpp
++++ b/R01_object_detection/src/main.cpp
+@@ -1372,7 +1372,7 @@ int32_t main(int32_t argc, char * argv[])
+     /* MIPI Camera Setup */
+     mipi_cam_init();
+     #endif
+-    gstreamer_pipeline = "v4l2src device=" + media_port +" io-mode=dmabuf ! video/x-raw, width="+std::to_string(CAM_IMAGE_WIDTH)+", height="+std::to_string(CAM_IMAGE_HEIGHT)+" ,framerate=30/1 ! videoconvert ! appsink -v";
++    gstreamer_pipeline = "v4l2src device=" + media_port +" io-mode=dmabuf ! video/x-raw, format=UYVY, width="+std::to_string(CAM_IMAGE_WIDTH)+", height="+std::to_string(CAM_IMAGE_HEIGHT)+" ,framerate=30/1 ! videoconvert ! appsink -v";
+ 
+     printf("RZ/V AI SDK Sample Application\n");
+     printf("Model : Darknet YOLOv3 | %s\n", model_dir.c_str());
