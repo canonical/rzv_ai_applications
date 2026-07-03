@@ -22,6 +22,7 @@ slots:
     custom-device: drp-ai-device
     devices:
       - /dev/drpai0
+      - /dev/drp1
       - /dev/udmabuf
       - /dev/rgnmm
       - /dev/rgnmmbuf
