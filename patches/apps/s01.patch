@@ -1,0 +1,13 @@
+diff --git a/S01_face_mosaic/src/face_mosaic.cpp b/S01_face_mosaic/src/face_mosaic.cpp
+index b471a6a..997651f 100644
+--- a/S01_face_mosaic/src/face_mosaic.cpp
++++ b/S01_face_mosaic/src/face_mosaic.cpp
+@@ -1291,7 +1291,7 @@ int main(int argc, char *argv[])
+     {
+         std::cout << "[INFO] USB CAMERA \n";
+         media_port = query_device_status("usb");
+-        gstreamer_pipeline = "v4l2src device=" + media_port + " ! video/x-raw, width="+std::to_string(IMAGE_WIDTH) +", height="+std::to_string(IMAGE_HEIGHT) +", framerate=30/1 ! videoconvert ! appsink";
++        gstreamer_pipeline = "v4l2src device=" + media_port + " ! video/x-raw, format=YUY2, width="+std::to_string(IMAGE_WIDTH) +", height="+std::to_string(IMAGE_HEIGHT) +", framerate=30/1 ! videoconvert ! appsink";
+ 
+         /* Initialize waylad */
+         ret = wayland.init(drpai_buf->idx, DISP_OUTPUT_WIDTH, DISP_OUTPUT_HEIGHT, BGRA_CHANNEL);

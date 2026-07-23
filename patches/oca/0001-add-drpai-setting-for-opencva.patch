@@ -3686,7 +3686,7 @@ index 0000000..4c3ad74
 +* Description   : Constructor
 +******************************************/
 +rzv2m_drp::rzv2m_drp()
-+{
++{ CV_LOG_INFO(nullptr, "DEA constructor");
 +}
 +
 +/*****************************************
@@ -3697,7 +3697,7 @@ index 0000000..4c3ad74
 +******************************************/
 +rzv2m_drp* rzv2m_drp::get_instance()
 +{
-+    drp_initialize_mutex.lock();
++    drp_initialize_mutex.lock();  CV_LOG_INFO(nullptr, "DEA getinst");
 +
 +    /* check initialize if not exec initialize */
 +    if(_singleton == NULL) 
@@ -3719,7 +3719,7 @@ index 0000000..4c3ad74
 +***********************************************************************/
 +rzv2m_drp* rzv2m_drp::get_instance_forapi()
 +{
-+    drp_init_for_api_mutex.lock();
++    drp_init_for_api_mutex.lock(); CV_LOG_INFO(nullptr, "DEA getinsrtforapi");
 +
 +    /* check initialize if not exec initialize */
 +    if(_singleton == NULL) 
@@ -3742,11 +3742,11 @@ index 0000000..4c3ad74
 +int rzv2m_drp::OCA_Activate(unsigned long* OCA_list)
 +{
 +    if(OCA_list == NULL)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA OCA Activate list is null!!!");
 +        return DRP_PARAM_ERROR;
 +    }
 +
-+    drp_mutex.lock();
++    drp_mutex.lock(); CV_LOG_INFO(nullptr, "DEA OCA Activate");
 +
 +    /* get circuit count (already read opencv_bin address info) */
 +    int circuit_cnt = (opencv_bin_config_base - opencv_bin_list_base) / 32;
@@ -3792,7 +3792,7 @@ index 0000000..4c3ad74
 +        }
 +    }
 +
-+    drp_mutex.unlock();
++    drp_mutex.unlock(); CV_LOG_INFO(nullptr, "DEA OCA ACTIVATED");
 +
 +    return DRP_NORMAL_END;
 +}
@@ -3867,16 +3867,16 @@ index 0000000..4c3ad74
 +int rzv2m_drp::readBinaryHeader(void)
 +{
 +    if(!initialized)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA read binary header not possible since not initialized");
 +        return DRP_NOT_EXECUTE;
 +    }
 +
 +    if(strcmp(opencv_bin_signature_p, OCABIN_SIGNATURE) != 0)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA read binary header MISMATCH");
 +        return DRP_NOT_EXECUTE;
 +    }
 +
-+    return DRP_NORMAL_END;
++    CV_LOG_INFO(nullptr, "DEA READ BINARY HEADER SUCSESS!!!"); return DRP_NORMAL_END;
 +}
 +
 +/**************************************************************************************************************
@@ -6135,7 +6135,7 @@ index 0000000..4c3ad74
 +    }
 +#endif
 +
-+    int ret_sem = 0;
++    int ret_sem = 0; CV_LOG_INFO(nullptr, "DEA SET DRP START");
 +
 +    // DRP_sem_wait in DRP_sem_open.
 +    ret_sem = DRP_sem_wait();
@@ -6146,7 +6146,7 @@ index 0000000..4c3ad74
 +        // that execution is not possible due to DRP_CONFLICT_ERROR.
 +        return DRP_CONFLICT_ERROR;
 +    }
-+
++    CV_LOG_INFO(nullptr, "DEA SET DRP START SUCCESS");
 +    return DRP_NORMAL_END;
 +}
 +
@@ -6178,19 +6178,19 @@ index 0000000..4c3ad74
 +    } 
 +#endif
 +
-+    /* to open DRP(B) driver */
++    /* to open DRP(B) driver */ CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize");
 +    fd_drp = open(DRP_DEV_NAME, O_RDWR);
 +    if (0 > fd_drp)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED1");
 +        return;
 +    }
 +
 +    /* to read 64bit physical address from DRP driver */
 +    if (ioctl(fd_drp, DRP_GET_OPENCVA_AREA, &local_drp_data) < 0)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED2");
 +        return;
 +    } 
-+    opencv_bin_addr64_phy = local_drp_data.address;
++    opencv_bin_addr64_phy = local_drp_data.address; CV_LOG_INFO(nullptr, " DEA ADDR===: " << local_drp_data.address);
 +
 +    /* read opencva binary data */
 +    drp_data_t opencvbin;
@@ -6207,13 +6207,13 @@ index 0000000..4c3ad74
 +    } while((-1 == (int)ret) && (ERESTART == errno));
 +
 +    if ((0 != ret) && (EACCES == errno))
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 3");
 +        conflict_action_exec();
 +        return;
 +    }
 +
 +    if (!((0 == (int)ret) && (0 == errno)))
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 4");
 +        return;
 +    }
 +
@@ -6225,13 +6225,13 @@ index 0000000..4c3ad74
 +    } while((-1 == (int)ret) && (ERESTART == errno));
 +
 +    if ((0 != ret) && (EACCES == errno))
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 5");
 +        conflict_action_exec();
 +        return;
 +    }
 +
 +    if (ret != (int)bin_size)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 6");
 +        return ;
 +    }
 + 
@@ -6244,17 +6244,17 @@ index 0000000..4c3ad74
 +    opencv_bin_param_base       = *(uint32_t *)(&opencv_bin_p[36]);     // opencva parameter info address(offset value)
 +
 +    if(strcmp(opencv_bin_signature_p, OCABIN_SIGNATURE) != 0)
-+    {
++    {  CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 7: " << opencv_bin_signature_p); CV_LOG_INFO(nullptr, " DEA F 7_2: " << opencv_bin_version_p);
 +        return;
 +    }
 +
 +    if(memcmp(opencv_bin_version_p, OCABIN_MAJOR_VER, strlen(OCABIN_MAJOR_VER) ) != 0)
-+    {
++    { CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize FAILED 8");
 +        return;
 +    }
 +
 +    /* set initialized complete */
-+    initialized = true;
++    initialized = true; CV_LOG_INFO(nullptr, "DEA rzv2m_drp::initialize SUCCESS");
 +
 +    return;
 +}
