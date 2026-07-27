@@ -1,6 +1,6 @@
 name: rzv-ai-applications
 base: core24
-version: '2.0'
+version: '2.1'
 summary: Renesas RZ/V AI Applications for RZ/V2H
 description: |
   This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
@@ -203,6 +203,8 @@ parts:
       - v4l-utils:$CRAFT_ARCH_BUILD_FOR
       - qtwayland5:$CRAFT_ARCH_BUILD_FOR
       - xkb-data:$CRAFT_ARCH_BUILD_FOR
+      - fontconfig:$CRAFT_ARCH_BUILD_FOR
+      - fonts-dejavu-core:$CRAFT_ARCH_BUILD_FOR
     prime:
       - -usr/lib/x86_64-linux-gnu
 
@@ -333,13 +335,13 @@ apps:
     command: usr/q01/bin/launch-object-tracker.sh
     environment:
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
-      XDG_RUNTIME_DIR: /run/user/1000
       WAYLAND_DISPLAY: wayland-0
       QT_QPA_PLATFORM: wayland-egl
       QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/aarch64-linux-gnu/qt5/plugins
       XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/usr/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
+      FONTCONFIG_PATH: $SNAP/etc/fonts
     plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-counter:
@@ -348,13 +350,13 @@ apps:
     command: usr/q08/bin/launch-object-counter.sh
     environment:
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
-      XDG_RUNTIME_DIR: /run/user/1000
       WAYLAND_DISPLAY: wayland-0
       QT_QPA_PLATFORM: wayland-egl
       QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/gpu-2404/lib/qt5/plugins
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
+      FONTCONFIG_PATH: $SNAP/etc/fonts
     plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
 
   object-detection:
@@ -363,11 +365,11 @@ apps:
     command: usr/r01/bin/launch-object-detection.sh
     environment:
       LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
-      XDG_RUNTIME_DIR: /run/user/1000
       WAYLAND_DISPLAY: wayland-0
       QT_QPA_PLATFORM: wayland-egl
       QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/gpu-2404/lib/qt5/plugins
       XKB_CONFIG_ROOT: $SNAP/gpu-2404-2/share/X11/xkb
       __EGL_VENDOR_LIBRARY_DIRS: $SNAP/gpu-2404-2/share/glvnd/egl_vendor.d
       XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
+      FONTCONFIG_PATH: $SNAP/etc/fonts
     plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
