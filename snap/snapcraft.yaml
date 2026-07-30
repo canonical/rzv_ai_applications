@@ -291,8 +291,8 @@ parts:
       - PRODUCT: V2H
       - TVM_HOME: $CRAFT_STAGE/usr/local/tvm
     build-packages:
-      - libmmngr-dev:$CRAFT_ARCH_BUILD_FOR
-      - libmmngrbuf-dev:$CRAFT_ARCH_BUILD_FOR
+      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
+      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
       - wayland-protocols
       - libwayland-bin  # provides wayland-scanner
     override-build: |
