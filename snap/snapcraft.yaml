@@ -268,6 +268,8 @@ parts:
       wayland-scanner client-header \
         /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
         /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
+      # TODO: fix this with proper headers
+      cp ${CRAFT_PROJECT_DIR}/mmngr_public_cmn.h /usr/include/
       mkdir -p $CRAFT_PART_INSTALL/usr/s01/bin/
       cp -a ${CRAFT_PROJECT_DIR}/../parts/rzv-sample-apps/src/S01_face_mosaic/exe_v2h/* $CRAFT_PART_INSTALL/usr/s01/bin/
       craftctl default
