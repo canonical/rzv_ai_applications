@@ -1,0 +1,67 @@
+diff --git a/Q08_object_counter/src/main.cpp b/Q08_object_counter/src/main.cpp
+index 5730fc0..b5e479b 100755
+--- a/Q08_object_counter/src/main.cpp
++++ b/Q08_object_counter/src/main.cpp
+@@ -50,5 +50,6 @@
+ #include "box.h"
+ #include "wayland.h"
++#include <cstdlib>
+ 
+ /*Multithreading*/
+ static sem_t terminate_req_sem;
+@@ -97,5 +98,6 @@ std::map<std::string, int> input_source_map =
+ #endif
+         {"USB", 2},
++        {"TEST", 3},
+ };
+ 
+ #ifdef V2L
+@@ -980,4 +982,5 @@ int8_t R_Main_Process()
+             infer_time_ms = total_time;
+             int total_count = 0;
++            static int total_detections = 0;
+             int items = 0;
+ 
+@@ -1028,4 +1031,10 @@ int8_t R_Main_Process()
+                 total_count += (int)it->second;
+                 items++;
++                if (total_detections < total_count)
++                {
++                    std::cout << "[INFO] " << std::string(it->first) << " detected.\n";
++                }
++                total_detections = total_count;
+             }
++            total_detections = total_count;
+             cv::putText(bgra_image, "Total Objects:  " + std::to_string(total_count), cv::Point(DISP_IMAGE_OUTPUT_WIDTH + 20, 150),
+@@ -1256,8 +1265,8 @@ void print_usage_info()
+ {
+ #ifdef V2H
+-    std::cout << "[INFO] usage: ./object_counter COCO|animal|vehicle USB\n";
++    std::cout << "[INFO] usage: ./object_counter COCO|animal|vehicle USB|TEST\n";
+ #elif V2L
+-    std::cout << "[INFO] usage: ./object_counter COCO|animal|vehicle USB|MIPI\n";
++    std::cout << "[INFO] usage: ./object_counter COCO|animal|vehicle USB|MIPI|TEST\n";
+ #endif
+ }
+ 
+@@ -1373,6 +1382,20 @@ int32_t main(int32_t argc, char *argv[])
+         gstreamer_pipeline = "v4l2src device=" + media_port + " ! videoconvert ! appsink";
+     }
+     break;
++    /* Input Source : Test PNG */
++    case 3:
++    {
++        const char *home = std::getenv("SNAP_REAL_HOME");
++        if (nullptr == home || '\0' == home[0])
++        {
++            std::cerr << "[ERROR] SNAP_REAL_HOME is not set\n";
++            return -1;
++        }
++        std::string test_image = std::string(home) + "/test.png";
++        std::cout << "[INFO] TEST IMAGE (" << test_image << ")\n";
++        gstreamer_pipeline = "filesrc location=" + test_image + " ! pngdec ! imagefreeze ! videoconvert ! video/x-raw,format=BGR,width=640,height=480,framerate=30/1 ! appsink";
++    }
++    break;
+     default:
+     {
+         std::cout << "[ERROR] Please specify Mode and Input Source" << std::endl;
