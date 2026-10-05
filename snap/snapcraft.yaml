@@ -1,6 +1,6 @@
 name: rzv-ai-applications
 base: core24
-version: '2.2'
+version: '2.3'
 summary: Renesas RZ/V AI Applications for RZ/V2H
 description: |
   This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
@@ -8,7 +8,7 @@ description: |
 
 compression: lzo
 
-grade: devel
+grade: stable
 confinement: strict
 
 platforms:
