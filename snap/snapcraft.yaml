@@ -1,10 +1,12 @@
-name: rzv-ai-applications
+name: rzv-sample-apps
 base: core24
-version: '2.0'
-summary: Renesas RZ/V AI Applications for RZ/V2H
+version: '1.0'
+summary: Renesas RZ/V Sample Applications for RZ/V2H
 description: |
-  This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
-  The DRP-AI TVM runtime is staged from renesas-rz/rzv_drp-ai_tvm, v2.5.1.
+  This snap contains the Face Mosaic application of the sample applications
+  from Renesas's rzv_sample_apps repository. The purpose of this application
+  is to demonstrate the OpenCV Accelerator of the RZ/V2H. The DRP-AI TVM
+  runtime is staged from renesas-rz/rzv_drp-ai_tvm, v2.3.0.
 
 compression: lzo
 
@@ -99,7 +101,7 @@ parts:
     plugin: nil
     source: https://github.com/renesas-rz/rzv_drp-ai_tvm.git
     source-type: git
-    source-tag: v2.5.1
+    source-tag: v2.3.0
     source-depth: 1
     override-build: |
       set -eux
@@ -189,23 +191,6 @@ parts:
       done
       craftctl default
 
-  rz-ai-sdk-src:
-    after: [tvm-runtime, opencv]
-    plugin: nil
-    source: https://github.com/renesas-rz/rzv_ai_sdk.git
-    source-type: git
-    source-tag: v7.10
-    source-depth: 1
-    stage-packages:
-      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
-      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
-      - libtesseract5:$CRAFT_ARCH_BUILD_FOR
-      - v4l-utils:$CRAFT_ARCH_BUILD_FOR
-      - qtwayland5:$CRAFT_ARCH_BUILD_FOR
-      - xkb-data:$CRAFT_ARCH_BUILD_FOR
-    prime:
-      - -usr/lib/x86_64-linux-gnu
-
   rzv-sample-apps:
     after: [tvm-runtime, opencv]
     plugin: nil
@@ -219,10 +204,6 @@ parts:
       - v4l-utils:$CRAFT_ARCH_BUILD_FOR
       - qtwayland5:$CRAFT_ARCH_BUILD_FOR
       - xkb-data:$CRAFT_ARCH_BUILD_FOR
-    # to avoid conflicts with rz-ai-sdk-src
-    stage:
-      - -usr/lib/aarch64-linux-gnu/libnghttp2.so.14.26.0
-      - -usr/share/doc/libnghttp2-14/changelog.Debian.gz
     prime:
       - -usr/lib/x86_64-linux-gnu
 
@@ -277,47 +258,8 @@ parts:
       craftctl default
       cp -a ${CRAFT_PROJECT_DIR}/scripts/launch-face-mosaic.sh $CRAFT_PRIME/usr/s01/bin/
 
-  q08-object-counter:
-    after: [rz-ai-sdk-src]
-    plugin: cmake
-    source: ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/src
-    source-type: local
-    cmake-parameters:
-      - -DCMAKE_INSTALL_PREFIX=/usr/q08
-      - -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc
-      - -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
-      - -DOpenCV_DIR=$SNAPCRAFT_STAGE/usr/lib/cmake/opencv4
-    build-environment:
-      - PRODUCT: V2H
-      - TVM_HOME: $CRAFT_STAGE/usr/local/tvm
-    build-packages:
-      - libmmngr1:$CRAFT_ARCH_BUILD_FOR
-      - libmmngrbuf1:$CRAFT_ARCH_BUILD_FOR
-      - wayland-protocols
-      - libwayland-bin  # provides wayland-scanner
-    override-build: |
-      # We need to add this because cmake plugin by default does: cmake --build . --target install
-      sed -i "\$a install(TARGETS object_counter RUNTIME)" $CRAFT_PART_SRC/CMakeLists.txt
-      # patch the application for gstreamer pipeline config
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/q08.patch
-      # Generate the source file where the CMakeLists.txt expects it
-      mkdir -p /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/
-      wayland-scanner private-code \
-        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.c
-      # Generate the header
-      wayland-scanner client-header \
-        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-        /usr/src/debug/gstreamer1.0-plugins-base/1.22.12/gst-libs/gst/gl/xdg-shell-client-protocol.h
-      mkdir -p $CRAFT_PART_INSTALL/usr/q08/bin/
-      cp -a ${CRAFT_PROJECT_DIR}/../parts/rz-ai-sdk-src/src/Q08_object_counter/exe_v2h/* $CRAFT_PART_INSTALL/usr/q08/bin/
-      craftctl default
-    override-prime: |
-      craftctl default
-      cp -a ${CRAFT_PROJECT_DIR}/scripts/launch-object-counter.sh $CRAFT_PRIME/usr/q08/bin/
-
   gpu-2404:
-    after: [q08-object-counter]
+    after: [s01-face-mosaic]
     source: https://github.com/canonical/gpu-snap.git
     plugin: dump
     override-prime: |
@@ -327,21 +269,6 @@ parts:
     - bin/gpu-2404-wrapper
 
 apps:
-  object-counter:
-    command-chain:
-    - bin/gpu-2404-wrapper
-    command: usr/q08/bin/launch-object-counter.sh
-    environment:
-      LD_LIBRARY_PATH: $LD_LIBRARY_PATH:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/lapack:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/blas:$SNAP/usr/lib/aarch64-linux-gnu/pulseaudio
-      XDG_RUNTIME_DIR: /run/user/1000
-      WAYLAND_DISPLAY: wayland-0
-      QT_QPA_PLATFORM: wayland-egl
-      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/gpu-2404/lib/qt5/plugins
-      XKB_CONFIG_ROOT: $SNAP/usr/share/X11/xkb
-      __EGL_VENDOR_LIBRARY_DIRS: $SNAP/usr/share/glvnd/egl_vendor.d
-      XDG_DATA_DIRS: $SNAP/usr/share:$SNAP/gpu-2404/usr/share:/usr/share
-    plugs: [camera, media-control, opengl, wayland, hardware-observe, gpu-2404, drp-ai-plug]
-
   face-mosaic:
     command-chain:
     - bin/gpu-2404-wrapper
