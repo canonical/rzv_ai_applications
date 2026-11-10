@@ -1,6 +1,6 @@
 name: rzv-ai-applications
 base: core24
-version: '2.3'
+version: '2.4'
 summary: Renesas RZ/V AI Applications for RZ/V2H
 description: |
   This snap contains selected AI applications from renesas-rz/rzv_ai_sdk, built for RZ/V2H.
@@ -308,8 +308,6 @@ parts:
     override-build: |
       # We need to add this because cmake plugin by default does: cmake --build . --target install
       sed -i "\$a install(TARGETS object_detection RUNTIME)" $CRAFT_PART_SRC/CMakeLists.txt
-      # patch the application for gstreamer pipeline config
-      git -C $CRAFT_PART_SRC/ apply -v -p3 $CRAFT_PROJECT_DIR/patches/apps/r01.patch
       # TODO: fix this with proper headers
       cp ${CRAFT_PROJECT_DIR}/mmngr_public_cmn.h /usr/include/
       mkdir -p $CRAFT_PART_INSTALL/usr/r01/bin/
